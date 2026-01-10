@@ -1,0 +1,16 @@
+# python cache/bytecode
+
+pycache/
+*.pyc
+
+# Mac
+.DS_Store
+
+# build/output folders
+Out/
+
+# logs
+*.log
+
+# exception
+!assets/reference_resume.docx

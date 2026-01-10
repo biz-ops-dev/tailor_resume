@@ -1,0 +1,43 @@
+[contact]
+email = "sample.email@gmail.cm"
+location = "Sample Location, USA"
+phone = "(999)8274"
+
+[paths]
+out_root = "/path/to/directory/out_root"
+csv_log = "/path/to/csv/run_log.csv"
+
+[tailor]
+per_role_keep = 6
+min_per_role_keep = 3
+drop_below_score = 0.5
+
+[terms]
+required = [
+  "example terms",
+  "project management",
+  "dashboard",
+  "kpi",
+]
+nice_to_have = [
+  "secondary",
+  "terms",
+  "can go heree",
+]
+domain = [
+  "platform migration",
+  "data migration",
+]
+
+max_auto_terms = 25
+
+[scoring]
+w_required = 3.0
+w_nice = 1.0
+w_domain = 2.0
+w_overlap = 0.12
+w_phrase_hit = 1.25
+w_metric = 1.5
+w_action_verb = 0.75
+w_generic_penalty = 1.0
+w_length_penalty = 0.4

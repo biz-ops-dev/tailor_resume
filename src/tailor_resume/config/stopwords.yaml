@@ -1,0 +1,92 @@
+# General English stopwords
+domain:
+  - disability
+  - candidate
+  - must
+  - qualification
+  - employment
+  - protected
+  - receive
+  - hiring
+  - qualifications
+  - business
+  - participate
+  - experience
+
+
+articles:
+  - a
+  - an
+  - the
+
+conjunctions:
+  - and
+  - or
+  - but
+
+prepositions:
+  - as
+  - at
+  - by
+  - for
+  - from
+  - in
+  - into
+  - of
+  - on
+  - over
+  - under
+  - within
+  - across
+  - via
+  - per
+
+determiners_demonstratives:
+  - that
+  - these
+  - this
+  - those
+  - their
+  - there
+  - then
+
+pronouns:
+  - i
+  - you
+  - we
+  - they
+  - them
+  - he
+  - she
+  - his
+  - her
+  - your
+  - our
+  - who
+  - what
+  - when
+  - where
+  - why
+
+auxiliary_common_verbs:
+  - are
+  - be
+  - has
+  - have
+  - is
+  - was
+  - were
+  - will
+
+modals_capability:
+  - can
+  - may
+  - able
+
+misc_common:
+  - it
+  - its
+  - with
+  - including
+  - include
+  - all

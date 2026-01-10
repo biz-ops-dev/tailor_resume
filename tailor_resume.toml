@@ -1,0 +1,46 @@
+[contact]
+email = "alex.w.carnevale@gmail.com"
+location = "Southern NH (willing to relocate)"
+phone = "(978)761-4795"
+
+[paths]
+out_root = "/Users/alexandercarnevale/my_repos/temp-out/tailor_resume/out"
+csv_log = "Users/alexandercarnevale/my_repos/temp-out/tailor_resume/run_log.csv"
+
+[tailor]
+per_role_keep = 6
+min_per_role_keep = 3
+drop_below_score = 0.5
+
+[terms]
+required = [
+  "stakeholder management",
+  "program management",
+  "dashboard",
+  "kpi",
+  "vendor management",
+]
+nice_to_have = [
+  "agile",
+  "scrum",
+  "change management",
+]
+domain = [
+  "arr",
+  "mrr",
+  "sla",
+  "platform migration",
+  "data migration",
+]
+max_auto_terms = 25
+
+[scoring]
+w_required = 3.0
+w_nice = 1.0
+w_domain = 2.0
+w_overlap = 0.12
+w_phrase_hit = 1.25
+w_metric = 1.5
+w_action_verb = 0.75
+w_generic_penalty = 1.0
+w_length_penalty = 0.4
