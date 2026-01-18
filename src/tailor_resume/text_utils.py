@@ -162,21 +162,3 @@ def metric_regex():
 import re
 
 
-def company_stopwords(company: str) -> set[str]:
-  """
-  Turn a company name into stopwords:
-  - individual words
-  - normalized variants
-  """
-  company = company.lower()
-
-  # Split on spaces & punctuation
-  parts = re.split(r"[^a-z0-9]+", company)
-
-  out = set(p for p in parts if len(p) >= 3)
-
-  # Add full company name as a phrase
-  if company.strip():
-    out.add(company.strip())
-
-  return out

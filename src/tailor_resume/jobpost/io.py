@@ -2,8 +2,8 @@
 from datetime import date
 from pathlib import Path
 
-from .models import JobPost
-from .text_utils import safe_slug
+from .types import JobPost
+from ..text_utils import safe_slug
 
 
 def _yaml_escape(s: str) -> str:

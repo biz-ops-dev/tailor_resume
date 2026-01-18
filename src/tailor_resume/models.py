@@ -18,12 +18,4 @@ class ResumeDoc:
   roles: list[Role] = field(default_factory=list)
 
 
-@dataclass
-class JobPost:
-  url: str
-  source: str                      # "linkedin" | "other"
-  date_pulled: date
-  title: str
-  company: str
-  description: str                 # full job text
-  attributes: dict[str, str] = field(default_factory=dict)
+

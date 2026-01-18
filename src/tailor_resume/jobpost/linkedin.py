@@ -1,17 +1,8 @@
 # it focuses on what you is mandatory (title, company) and stores any extra “attributes” opportunistically.
 
-from dataclasses import dataclass
 from datetime import date
-import re
 
-from .models import JobPost
-
-
-_LINKEDIN_HOST_RE = re.compile(r"(^|https?://)(www\.)?linkedin\.com/", re.IGNORECASE)
-
-
-def is_linkedin_url(url: str) -> bool:
-  return bool(_LINKEDIN_HOST_RE.search((url or "").strip()))
+from .types import JobPost
 
 
 def parse_linkedin_job_post(*, url: str, full_text: str) -> JobPost:

@@ -3,35 +3,59 @@ from __future__ import annotations
 from .models import ResumeDoc, Role
 
 
-def parse_resume(md_text: str) -> ResumeDoc:
+def parse_professional_experience(md_text: str) -> ResumeDoc:
+  """return a resume document
+
+  Args:
+      md_text (str): base resume
+
+  Returns:
+      ResumeDoc: dataclass with lines and roles
+  """
   lines = md_text.splitlines(keepends=False)
   doc = ResumeDoc(lines=list(lines))
 
-  prof_start = None
-  prof_end = None
+  # below are "markers" not triggers
+  professional_experience_start = None
+  professional_experience_end = None
+
   for i, line in enumerate(lines):
     if line.startswith("## "):
-      section = line[3:].strip().lower()
-      if section == "professional_experience":
-        prof_start = i
-        continue
-      if prof_start is not None and i > prof_start:
-        prof_end = i
+      section_header = line[3:].strip().lower()
+      if section_header == "professional_experience":
+        professional_experience_start = i # set to the index of the header line
+        # skips rest of this loop iteration but arsing continues through subsequent lines
+        continue 
+
+      # Detecting the next section header
+      # works because of line "if line.startswith("## "):"
+      # The first new section header after professional_experience triggers the end
+      if professional_experience_start is not None and i > professional_experience_start:
+        professional_experience_end = i
         break
 
-  doc.prof_exp_start_idx = prof_start
-  doc.prof_exp_end_idx = prof_end if prof_start is not None else None
+  doc.prof_exp_start_idx = professional_experience_start
 
-  if prof_start is None:
+  #Save the end index, but only if a start was found
+  doc.prof_exp_end_idx = professional_experience_end if professional_experience_start is not None else None
+
+  # bail early
+  # future - error
+  if professional_experience_start is None:
     return doc
 
-  end = prof_end if prof_end is not None else len(lines)
-  block = lines[prof_start:end]
+  # Compute a usable end for slicing
+  ## If you found an end header (“## education” etc.), slice up to that.
+  ## Otherwise, assume the section goes to the end of the document.
+  end = professional_experience_end if professional_experience_end is not None else len(lines)
+
+  # Slice out the professional_experience_block
+  professional_experience_block = lines[professional_experience_start:end]
 
   roles: list[Role] = []
   current: Role | None = None
 
-  for line in block:
+  for line in professional_experience_block:
     if line.startswith("### "):
       if current is not None:
         roles.append(current)

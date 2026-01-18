@@ -5,11 +5,8 @@ import json
 from pathlib import Path
 from datetime import date
 
-from .clipboard_flow import capture_from_clipboard, ensure_title_company
-from .linkedin_parser import is_linkedin_url, parse_linkedin_job_post
-from .models import JobPost
-from .jobpost_io import write_jobpost
-from .resume_parse import parse_resume, render_resume_with_new_roles
+from .jobpost.flow import build_job_post_from_cli, MissingRequiredFieldsError
+from .resume_parse import parse_professional_experience, render_resume_with_new_roles
 from .tailor_engine import tailor
 from .markdown_rules import normalize_markdown_spacing, validate_markdown
 from .notes_rules import strip_notes_from_markdown, validate_notes_placement
@@ -19,7 +16,6 @@ from .run_log import append_csv_row
 from .text_utils import now_iso_local
 from .resume_frontmatter import render_resume_frontmatter
 from .config.stopwords import load_stopwords
-from .text_utils import company_stopwords
 from .tailor_config import TailorConfig
 from .tailor_config import load_config
 
@@ -46,9 +42,9 @@ def build_argparser() -> argparse.ArgumentParser:
 def main() -> int:
   args = build_argparser().parse_args()
 
-  resume_path = Path(args.resume)
-  if not resume_path.exists():
-    raise FileNotFoundError(f"Resume not found: {resume_path}")
+  base_resume = Path(args.resume)
+  if not base_resume.exists():
+    raise FileNotFoundError(f"Resume not found: {base_resume}")
 
   # ---- load config FIRST ----
   default_cfg = Path(__file__).resolve().parent / "config/tailor_resume.toml"
@@ -66,69 +62,43 @@ def main() -> int:
   if args.use_nltk:
     cfg.use_nltk = True
 
-  # ---- capture job url + text ----
-  if args.job_url and args.job_text:
-    url = args.job_url.strip()
-    job_text = Path(args.job_text).read_text(encoding="utf-8")
-  else:
-    cap = capture_from_clipboard()
-    url = cap.url
-    job_text = cap.description
+  # ---- build job post -----
 
-  # ---- parse job post ----
-  if is_linkedin_url(url):
-    post = parse_linkedin_job_post(url=url, full_text=job_text)
-  else:
-    from datetime import date
-    post = JobPost(
-      url=url.strip(),
-      source="other",
-      date_pulled=date.today(),
-      title="",
-      company="",
-      description=job_text.strip(),
-      attributes={},
+  try:
+    job_result = build_job_post_from_cli(args, cfg)
+  except MissingRequiredFieldsError as e:
+    raise RuntimeError(
+      f"Job post missing required fields: {', '.join(e.missing)} "
+      f"(source={e.source}). Re-copy the LinkedIn post and try again."
     )
 
-  # ---- enforce required title/company ----
-  title, company = ensure_title_company(title=post.title, company=post.company)
-  post.title = title
-  post.company = company
+  post = job_result.post
+  out_dir = job_result.out_dir
+  jobpost_path = job_result.jobpost_path
 
-  # ---- company-specific stopwords (per run) ----
-  cfg.stopwords = set(cfg.stopwords)
-  cfg.stopwords |= company_stopwords(post.company)
-
-  # ---- compute output directory (NOW safe: needs cfg + post) ----
-  base_out_root = Path(args.out_dir) if args.out_dir else Path(cfg.paths_out_root)
-
-  today = post.date_pulled
-  month_dir = f"{today:%m}-{today:%B}"           # 01-January
-  day_dir = f"{today:%d}-{post.company.strip()}" # 09-Acme Corp
-
-  out_dir = base_out_root / month_dir / day_dir
-  out_dir.mkdir(parents=True, exist_ok=True)
-
-  # ---- write job post markdown ----
-  if not args.dry_run:
-    jobpost_path = write_jobpost(out_dir, post)
-  else:
-    jobpost_path = out_dir / "DRY_RUN_jobpost.md"
+  # apply stopwords delta HERE in CLI
+  cfg.stopwords = set(cfg.stopwords) | job_result.stopwords_delta
 
   # ---- tailor resume ----
-  md_text = resume_path.read_text(encoding="utf-8")
+  intermediate_md_resume = base_resume.read_text(encoding="utf-8")
 
   # mandatory contact line injection
   contact_block = make_contact_table(cfg.contact_email, cfg.contact_location, cfg.contact_phone)
   if not contact_block:
     raise RuntimeError("Contact table rendered empty (contact info missing in config).")
 
-  if "{{CONTACT_LINE}}" in md_text:
-    md_text = md_text.replace("{{CONTACT_LINE}}", contact_block.rstrip() + "\n", 1)
+  if "{{CONTACT_LINE}}" in intermediate_md_resume:
+    intermediate_md_resume = intermediate_md_resume.replace("{{CONTACT_LINE}}", contact_block.rstrip() + "\n", 1)
   else:
     raise RuntimeError("Missing {{CONTACT_LINE}} placeholder in base resume.")
 
-  doc = parse_resume(md_text)
+  # doc is dataclass ResumeDoc
+  # ¿ why can't make "doc:ResumeDoc"
+  doc = parse_professional_experience(intermediate_md_resume)
+
+
+  # doc is dataclass ResumeDoc
+  # post: JobPost
   new_roles, report = tailor(doc, post.description, cfg)
   out_md = render_resume_with_new_roles(doc, new_roles)
 
@@ -193,7 +163,7 @@ def main() -> int:
       "profile": args.profile,
       "submission_status": args.status,
       "job_file": str(jobpost_path),
-      "resume_in": str(resume_path),
+      "resume_in": str(base_resume),
       "resume_out": str(resume_out),
       "report_out": str(report_out),
       "use_nltk": str(cfg.use_nltk),
