@@ -1,11 +1,11 @@
 [contact]
-email = "sample.email@gmail.cm"
-location = "Sample Location, USA"
-phone = "(999)8274"
+email = "alex.w.carnevale@gmail.com"
+location = "Greater Boston (willing to relocate)"
+phone = "(978)761-4795"
 
 [paths]
-out_root = "/path/to/directory/out_root"
-csv_log = "/path/to/csv/run_log.csv"
+out_root = "/Users/alexandercarnevale/my_repos/temp-out/tailor_resume/out"
+csv_log = "Users/alexandercarnevale/my_repos/temp-out/tailor_resume/run_log.csv"
 
 [tailor]
 per_role_keep = 6
@@ -14,21 +14,24 @@ drop_below_score = 0.5
 
 [terms]
 required = [
-  "example terms",
-  "project management",
+  "stakeholder management",
+  "program management",
   "dashboard",
   "kpi",
+  "vendor management",
 ]
 nice_to_have = [
-  "secondary",
-  "terms",
-  "can go heree",
+  "agile",
+  "scrum",
+  "change management",
 ]
 domain = [
+  "arr",
+  "mrr",
+  "sla",
   "platform migration",
   "data migration",
 ]
-
 max_auto_terms = 25
 
 [scoring]

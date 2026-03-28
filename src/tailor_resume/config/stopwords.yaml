@@ -16,6 +16,13 @@ domain:
   - role
   - job
   - ensuring
+  - paid
+  - leave
+  - senior
+  - days
+  - people
+  - accommodation
+  - leave
 
 
 
